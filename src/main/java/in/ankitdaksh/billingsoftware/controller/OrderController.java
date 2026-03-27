@@ -30,4 +30,9 @@ public class OrderController {
     public List<OrderResponse> getLatestOrder(){
          return  orderService.getLatestOrders();
     }
+    @PostMapping("/summarize")
+    public String summarizeOrders(){
+        return orderService.summarizeOrders();
+    }
+
 }

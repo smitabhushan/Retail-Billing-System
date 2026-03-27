@@ -18,4 +18,6 @@ public interface OrderService {
     Double sumSalesByDate(LocalDate date);
     Long countByOrderDate(LocalDate date);
     List<OrderResponse> findRecentOrders();
+
+    String summarizeOrders();
 }

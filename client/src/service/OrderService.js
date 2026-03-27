@@ -11,3 +11,14 @@ export const createOrder = async (order) => {
 export const deleteOrder = async (orderId) => {
     return await axios.delete(`http://localhost:8080/orders/${orderId}`,{headers:{'Authorization':`Bearer ${localStorage.getItem("token")}`}});
 }
+export const summarizeOrders = async () => {
+    return await axios.post(
+        "http://localhost:8080/orders/summarize",
+        {},
+        {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+};

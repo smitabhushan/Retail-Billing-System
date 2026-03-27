@@ -5,6 +5,31 @@
     background-color: #2c3335;
 }
 
+.summary-wrapper {
+  width: 100%;
+}
+
+.summary-card {
+  width: 100%;
+  background-color: #1f1f1f;
+  color: #f1f1f1;
+  border-radius: 12px;
+  padding: 24px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.summary-content {
+  white-space: pre-line; /* keeps AI formatting */
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.summary-card h5 {
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
 .orders-history-container h2{
     color: #343a40;
     font-weight: 600;

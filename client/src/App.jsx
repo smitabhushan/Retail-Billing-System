@@ -29,9 +29,9 @@ const App = () => {
       return <Navigate to= '/login' replace />
     }
 
-    if(allowedRoles && !allowedRoles.includes(auth.role)){
-       return <Navigate to= '/dashboard' replace />
-    }
+    if (allowedRoles && auth.role && !allowedRoles.includes(auth.role)) {
+      return <Navigate to='/dashboard' replace />
+      }
 
     return element;
   }

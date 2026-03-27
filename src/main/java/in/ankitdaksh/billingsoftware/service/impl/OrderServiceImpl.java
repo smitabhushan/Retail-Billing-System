@@ -8,6 +8,12 @@ import in.ankitdaksh.billingsoftware.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.*;
 
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
@@ -17,6 +23,10 @@ import java.util.stream.Collectors;
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderEntityRepository orderEntityRepository;
+    @Value("${gemini.api.key}")
+    private String geminiApiKey;
+    @Value("${gemini.api.url}")
+    private String geminiApiUrl;
 
     // new order banata h, request ko entity me convert karke DB me save karta hai aur response return karta hai
     @Override
@@ -101,6 +111,131 @@ public class OrderServiceImpl implements OrderService {
                 .stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public String summarizeOrders() {
+
+        List<OrderEntity> orders = orderEntityRepository.findAllByOrderByCreatedAtDesc();
+
+        try {
+
+            // Simplify Orders
+            List<Map<String, Object>> simplifiedOrders = orders.stream().map(order -> {
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("orderId", order.getOrderId());
+                map.put("customerName", order.getCustomerName());
+                map.put("grandTotal", order.getGrandTotal());
+                map.put("paymentMethod", order.getPaymentMethod());
+
+                map.put("items", order.getItems().stream().map(item -> {
+
+                    Map<String, Object> itemMap = new HashMap<>();
+                    itemMap.put("name", item.getName());
+                    itemMap.put("price", item.getPrice());
+                    itemMap.put("quantity", item.getQuantity());
+
+                    return itemMap;
+
+                }).toList());
+
+                return map;
+
+            }).toList();
+
+            ObjectMapper mapper = new ObjectMapper();
+            String ordersJson = mapper.writeValueAsString(simplifiedOrders);
+
+            // Build Prompt
+//            String prompt = """
+//                You are a business analyst.
+//                Analyze the following order data and provide:
+//                - Total revenue
+//                - Most sold products
+//                - Payment method distribution
+//                - Business insights
+//                - Suggestions for growth
+//
+//                Orders Data:
+//                """ + ordersJson;
+            String prompt = """
+Analyze the following order data and provide a clean business summary.
+
+IMPORTANT RULES:
+- Respond in plain text only.
+- Do NOT use markdown symbols like ###, **, ---, *, or tables.
+- Do NOT repeat sections.
+- Use simple headings and bullet points using hyphen (-) only.
+- Keep response clear and structured.
+- Avoid duplicate text.
+- Keep the summary under 300 words.
+
+Order Data:
+""" + ordersJson;
+
+
+            return callGemini(prompt);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating summary");
+        }
+    }
+
+
+
+    private String callGemini(String prompt) {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String url = geminiApiUrl;
+
+        Map<String, Object> textPart = new HashMap<>();
+        textPart.put("text", prompt);
+
+        Map<String, Object> content = new HashMap<>();
+        content.put("parts", List.of(textPart));
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("contents", List.of(content));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-goog-api-key", geminiApiKey);
+
+        HttpEntity<Map<String, Object>> request =
+                new HttpEntity<>(requestBody, headers);
+
+        try {
+
+            ResponseEntity<String> response =
+                    restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            // ✅ Parse JSON response
+            Map<String, Object> body =
+                    mapper.readValue(response.getBody(), Map.class);
+
+            List<Map<String, Object>> candidates =
+                    (List<Map<String, Object>>) body.get("candidates");
+
+            Map<String, Object> firstCandidate = candidates.get(0);
+
+            Map<String, Object> contentMap =
+                    (Map<String, Object>) firstCandidate.get("content");
+
+            List<Map<String, Object>> parts =
+                    (List<Map<String, Object>>) contentMap.get("parts");
+
+            Map<String, Object> firstPart = parts.get(0);
+
+            String summary = (String) firstPart.get("text");
+
+            return summary;   // ✅ RETURN CLEAN SUMMARY ONLY
+
+        } catch (Exception e) {
+            throw new RuntimeException("Gemini API Error: " + e.getMessage());
+        }
     }
 
     @Override

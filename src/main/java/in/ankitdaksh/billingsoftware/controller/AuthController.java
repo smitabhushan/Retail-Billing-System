@@ -31,12 +31,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) throws Exception {
-        authenticate(request.getEmail(),request.getPassword());
-        final UserDetails userDetails=appUserDetailsService.loadUserByUsername(request.getEmail());
-        final String jwtToken=jwtUtil.generateToken(userDetails);
-        //fetch role from repo
-        String role=userService.getUserRole(request.getEmail());
-        return new AuthResponse(request.getEmail(),jwtToken,role);
+
+        authenticate(request.getEmail(), request.getPassword());
+
+        final UserDetails userDetails =
+                appUserDetailsService.loadUserByUsername(request.getEmail());
+
+        final String jwtToken = jwtUtil.generateToken(userDetails);
+
+        String role = userService.getUserRole(request.getEmail());
+
+        return new AuthResponse(request.getEmail(), jwtToken, role);
     }
 
     private void authenticate(String email, String password) throws Exception{
@@ -45,7 +50,7 @@ public class AuthController {
         }catch(DisabledException e){
             throw new Exception("User disabled");
         }catch(BadCredentialsException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Email or password incorrect");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
         }
     }
 
