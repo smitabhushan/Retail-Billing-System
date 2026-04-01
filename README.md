@@ -45,4 +45,22 @@ This project simulates a real-world billing system used in retail stores, coveri
 
 ## 📂 Project Structure
 
-### Backend
+```bash
+project-root/
+ ├── backend/
+ │   ├── controller
+ │   ├── service
+ │   ├── repository
+ │   ├── entity
+ │   ├── security
+ │   ├── config
+ │   └── utils
+ │
+ └── frontend/
+     ├── components
+     ├── pages
+     ├── services
+     ├── routes
+     ├── assets
+     └── utils
+```
