@@ -63,4 +63,26 @@ project-root/
      ├── routes
      ├── assets
      └── utils
+
 ```
+## 🔄 Application Workflow
+
+- User/Admin logs in securely  
+- Admin creates categories & items  
+- Product images are uploaded  
+- Items are added to cart  
+- Customer details are entered  
+- Payment is completed via Razorpay  
+- Order is generated and stored  
+- Dashboard displays sales & order data
+  
+## 📚 Learning Outcomes
+Build secure REST APIs using Spring Boot
+Implement authentication using Spring Security
+Integrate React frontend with Java backend
+Handle file uploads (Local & AWS S3)
+Razorpay payment gateway integration
+Real-world CRUD operations
+Routing & state management in React
+
+ 
