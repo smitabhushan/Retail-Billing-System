@@ -5,11 +5,6 @@ A production-ready full-stack Retail Billing / POS application built using **Rea
 
 This project simulates a real-world billing system used in retail stores, covering product management, billing, payments, and analytics.
 
-🔗 **Live Demo:**  
-https://www.linkedin.com/posts/ankitgola1304_fullstackdevelopment-springboot-reactjs-activity-7422318021106401283-FGFC
-
----
-
 ## 🛠️ Tech Stack
 
 ### 🔹 Frontend
